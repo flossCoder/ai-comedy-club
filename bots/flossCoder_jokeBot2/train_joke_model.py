@@ -5,7 +5,11 @@ import os
 get_file_path = lambda : os.path.split(os.path.realpath(__file__))[0]
 FILE_PATH_AUX = get_file_path()
 
+from urllib.request import urlretrieve
+
 os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "garbage_collection_threshold:0.6,max_split_size_mb:32"
+
+PKL_FILE_URL = "https://github.com/flossCoder/flossCoder_jokeBot_data/raw/main/joke_generator.pkl"
 
 def build_pipeline():
     """
@@ -143,7 +147,10 @@ def load_model(filename = "joke_generator", wd = None):
         Nevertheless simpletransformers.classification.classification_model.ClassificationModel is the desired type.
 
     """
-    model = pickle.load(open(os.path.join(FILE_PATH_AUX if wd is None else wd, "%s.pkl"%filename), "rb"))
+    filename = os.path.join(FILE_PATH_AUX if wd is None else wd, "%s.pkl"%filename)
+    if not os.path.exists(filename):
+        urlretrieve(PKL_FILE_URL, filename)
+    model = pickle.load(open(filename, "rb"))
     return model
 
 def train_joke_model(number_of_epochs):
